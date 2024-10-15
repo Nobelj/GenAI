@@ -1,3 +1,4 @@
+import json
 import requests
 import streamlit as st
 import soundfile as sf
@@ -8,10 +9,21 @@ import pandas as pd
 import poe_api_wrapper as poe
 import asyncio
 import assemblyai as aai
+from doctr.io import DocumentFile
+from doctr.models import ocr_predictor
+
+from pathlib import Path
+from typing import Optional, Tuple
+
+import cv2
+import numpy as np
+
+model = ocr_predictor(
+    det_arch="db_resnet50", reco_arch="crnn_vgg16_bn", pretrained=True
+)
 
 aai.settings.api_key = "b06dfaf145314edda33dec09358c33e7"
 transcriber = aai.Transcriber()
-print("Loaded")
 tokens = {
     "p-b": "9n2a28WJBS0k8ZSOtQrTLg%3D%3D",
     "p-lat": "eTsPiwkEryufUYC1RSyz4Qw38din18YDm3b7PB85Rg%3D%3D",
@@ -114,24 +126,56 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
             disabled=ollama_selected,
             label_visibility="visible",
         )
+    use_chat = False
+    use_document = False
+    use_audio = False
+
+    transcription = ""
 
     audio_input = st.experimental_audio_input(
-        "Speak here to transcribe", label_visibility="visible"
+        "Speak here", label_visibility="visible", disabled=(use_chat or use_document)
     )
-    transcription = ""
-    use_transcription = False
-    if audio_input:
-        transcript = transcriber.transcribe(audio_input)
-        transcription = transcript.text
-        title = st.text_input("Transcription", transcription, disabled=True)
-        use_transcription = st.button("Use?")
-    if use_transcription:
-        mnemonize(transcription)
+    document_input = st.file_uploader(
+        "Upload image",
+        accept_multiple_files=False,
+        type=["jpg", "jpeg", "png"],
+        disabled=use_chat or use_audio,
+    )
+
     if text_area := st.chat_input(
         "Share information to mnemonize",
-        disabled=use_transcription,
+        disabled=use_audio or use_document,
     ):
         mnemonize(text_area)
+
+    if audio_input:
+        with st.spinner("Transcribing"):
+            audio_input = None
+            use_audio = True
+            transcript = transcriber.transcribe(audio_input)
+            transcription = transcript.text
+            title = st.text_area("Transcription", transcription, disabled=True)
+
+            if st.button("Use?", key="uaud"):
+                mnemonize(transcription)
+
+    if document_input:
+        with st.spinner("Transcribing"):
+            document_input =  None
+            use_document = True
+            model = ocr_predictor(pretrained=True)
+            doc = DocumentFile.from_images(document_input.read())
+            result = model(doc)
+            transcription = ""
+            for page in result.pages:
+                for block in page.blocks:
+                    for line in block.lines:
+                        for word in line.words:
+                            transcription += word.value + " "
+                        transcription += "\n" + " "
+            title = st.text_area("Transcription", transcription, disabled=True)
+            if st.button("Use?", key="udoc"):
+                mnemonize(transcription)
 
 
 def mnemonize(text_area):
@@ -147,7 +191,7 @@ def mnemonize(text_area):
         with st.spinner("Generating music"):
             audio_url = generate_music(message)
         if audio_url:
-            st.write("Audio URL: ", audio_url)
+            # st.write("Audio URL: ", audio_url)
             st.audio(audio_url, format="audio/mpeg", loop=False)
         else:
             st.write("Failed to generate music.")

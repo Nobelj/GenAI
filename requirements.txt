@@ -8,3 +8,7 @@ pandas
 poe_api_wrapper
 asyncio
 assemblyai
+json
+python-doctr
+opencv-python
+numpy
