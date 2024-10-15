@@ -4,12 +4,13 @@ import ollama
 import torch
 import poe_api_wrapper as poe
 import assemblyai as aai
-from doctr.io import DocumentFile
-from doctr.models import ocr_predictor
 
-model = ocr_predictor(
-    det_arch="db_resnet50", reco_arch="crnn_vgg16_bn", pretrained=True
-)
+# from doctr.io import DocumentFile
+# from doctr.models import ocr_predictor
+
+# model = ocr_predictor(
+#     det_arch="db_resnet50", reco_arch="crnn_vgg16_bn", pretrained=True
+# )
 
 aai.settings.api_key = "b06dfaf145314edda33dec09358c33e7"
 transcriber = aai.Transcriber()
@@ -54,6 +55,7 @@ def model_res_generator(bot):
         )
         for chunk in stream:
             yield chunk["message"]["content"]
+
 
 def main():
     if "system_prompt" not in st.session_state:
@@ -138,18 +140,18 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
 
     if document_input:
         with st.spinner("Transcribing"):
-            document_input =  None
+            document_input = None
             use_document = True
-            model = ocr_predictor(pretrained=True)
-            doc = DocumentFile.from_images(document_input.read())
-            result = model(doc)
+            # model = ocr_predictor(pretrained=True)
+            # doc = DocumentFile.from_images(document_input.read())
+            # result = model(doc)
             transcription = ""
-            for page in result.pages:
-                for block in page.blocks:
-                    for line in block.lines:
-                        for word in line.words:
-                            transcription += word.value + " "
-                        transcription += "\n" + " "
+            # for page in result.pages:
+            #     for block in page.blocks:
+            #         for line in block.lines:
+            #             for word in line.words:
+            #                 transcription += word.value + " "
+            #             transcription += "\n" + " "
             title = st.text_area("Transcription", transcription, disabled=True)
             if st.button("Use?", key="udoc"):
                 mnemonize(transcription)
