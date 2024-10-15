@@ -9,4 +9,4 @@ poe_api_wrapper
 asyncio
 assemblyai
 json
-python-doctr
+python-doctr[torch]

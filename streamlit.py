@@ -1,22 +1,11 @@
-import json
-import requests
 import streamlit as st
-import soundfile as sf
 import suno
 import ollama
 import torch
-import pandas as pd
 import poe_api_wrapper as poe
-import asyncio
 import assemblyai as aai
 from doctr.io import DocumentFile
 from doctr.models import ocr_predictor
-
-from pathlib import Path
-from typing import Optional, Tuple
-
-import cv2
-import numpy as np
 
 model = ocr_predictor(
     det_arch="db_resnet50", reco_arch="crnn_vgg16_bn", pretrained=True
