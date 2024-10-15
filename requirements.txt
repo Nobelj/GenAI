@@ -1,0 +1,9 @@
+requests
+streamlit
+soundfile
+suno
+ollama
+torch
+pandas
+poe_api_wrapper
+asyncio
