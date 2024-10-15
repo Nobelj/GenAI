@@ -7,7 +7,10 @@ import torch
 import pandas as pd
 import poe_api_wrapper as poe
 import asyncio
+import assemblyai as aai
 
+aai.settings.api_key = "b06dfaf145314edda33dec09358c33e7"
+transcriber = aai.Transcriber()
 print("Loaded")
 tokens = {
     "p-b": "9n2a28WJBS0k8ZSOtQrTLg%3D%3D",
@@ -77,11 +80,14 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
         st.session_state["messages"] = [
             {"role": "system", "content": st.session_state["system_prompt"]}
         ]
+    st.image("logo.png", width=400, use_column_width=True)
 
-    st.title("🎵Everybaba MEMnic🎵")
-
-    with st.expander("See explanation"):
+    with st.expander("See more about this prototype"):
         st.write("Remember information easily with music!")
+        st.warning(
+            "Audio generation is currently unavailable on the cloud server. A remote CPU instance is required to interact with the generation service since it doesn't support this officially yet. To test the complete demonstration, please refer to the code to setup the environment locally.",
+            icon="⚠️",
+        )
 
     for message in st.session_state["messages"]:
         print("Message: ", message)
@@ -89,11 +95,15 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
             continue
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
-
-    st.session_state["model"] = st.selectbox(
-        "Select Model",
-        ("gpt4_o_mini", "claude_3_haiku", "ollama_server"),
-    )
+    with st.sidebar:
+        st.session_state["model"] = st.selectbox(
+            "Select LLM Model",
+            ("gpt4_o_mini", "claude_3_haiku", "ollama_server"),
+        )
+        st.session_state["audio_model"] = st.selectbox(
+            "Select Audio Model",
+            ("suno", "udio", "music_lm", "ollama_server"),
+        )
     ollama_selected = st.session_state["model"] == "ollama_server"
     if ollama_selected:
         models = [model["name"] for model in ollama.list()["models"]]
@@ -105,57 +115,44 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
             label_visibility="visible",
         )
 
-    smth = st.experimental_audio_input(
+    audio_input = st.experimental_audio_input(
         "Speak here to transcribe", label_visibility="visible"
     )
-
-    if text_area := st.chat_input("Enter your description......."):
-        st.session_state["messages"].append({"role": "user", "content": text_area})
-
-        with st.chat_message("user"):
-            st.markdown(text_area)
-
-        # retry = True
-        # while retry:
-        #     retry = True
-        #     with st.chat_message("assistant"):
-        #         message = st.write_stream(model_res_generator())
-        #         if st.button("Continue?"):
-        #             retry = False
-        #         while retry:
-        #             pass
-
-        with st.chat_message("assistant"):
-            message = st.write_stream(
-                model_res_generator(bot=st.session_state["model"])
-            )
-
-            with st.spinner("Generating music"):
-                audio_url = generate_music(message)
-            if audio_url:
-                st.write("Audio URL: ", audio_url)
-                st.audio(audio_url, format="audio/mpeg", loop=False)
-            else:
-                st.write("Failed to generate music.")
-
-            st.session_state["messages"].append(
-                {"role": "assistant", "content": message}
-            )
+    transcription = ""
+    use_transcription = False
+    if audio_input:
+        transcript = transcriber.transcribe(audio_input)
+        transcription = transcript.text
+        title = st.text_input("Transcription", transcription, disabled=True)
+        use_transcription = st.button("Use?")
+    if use_transcription:
+        mnemonize(transcription)
+    if text_area := st.chat_input(
+        "Share information to mnemonize",
+        disabled=use_transcription,
+    ):
+        mnemonize(text_area)
 
 
-# time_slider = st.slider("Select time duration (In Seconds)", 0, 20, 10)
+def mnemonize(text_area):
+    # Insert into storage
+    st.session_state["messages"].append({"role": "user", "content": text_area})
+    # Display User Message
+    with st.chat_message("user"):
+        st.markdown(text_area)
 
-# if text_area and time_slider:
+    with st.chat_message("assistant"):
+        message = st.write_stream(model_res_generator(bot=st.session_state["model"]))
 
-#     if st.button("Generate Music"):
-#         st.write("Generating music...")
-#         audio_file_path = generate_music(text_area, time_slider)
+        with st.spinner("Generating music"):
+            audio_url = generate_music(message)
+        if audio_url:
+            st.write("Audio URL: ", audio_url)
+            st.audio(audio_url, format="audio/mpeg", loop=False)
+        else:
+            st.write("Failed to generate music.")
 
-#         if audio_file_path:
-#             st.write("Saving generated music...")
-#             st.audio(audio_file_path, format="audio/wav")
-#         else:
-#             st.write("Failed to generate music.")
+        st.session_state["messages"].append({"role": "assistant", "content": message})
 
 
 if __name__ == "__main__":
