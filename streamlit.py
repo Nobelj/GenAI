@@ -55,6 +55,7 @@ def model_res_generator(bot):
         for chunk in stream:
             yield chunk["message"]["content"]
 
+
 def main():
     if "system_prompt" not in st.session_state:
         st.session_state["system_prompt"] = (
@@ -125,19 +126,18 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
     ):
         mnemonize(text_area)
 
-    if audio_input:
+    if audio_input and not use_audio:
         with st.spinner("Transcribing"):
-            use_audio = True
             transcript = transcriber.transcribe(audio_input)
             transcription = transcript.text
             st.text_area("Transcription", transcription, disabled=True)
             audio_input = None
             if st.button("Use?", key="uaud"):
+                use_audio = True
                 mnemonize(transcription)
 
-    if document_input:
+    if document_input and not use_document:
         with st.spinner("Transcribing"):
-            use_document = True
             model = ocr_predictor(pretrained=True)
             doc = DocumentFile.from_images(document_input.read())
             result = model(doc)
@@ -149,8 +149,9 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
                             transcription += word.value + " "
                         transcription += "\n" + " "
             st.text_area("Transcription", transcription, disabled=True)
-            document_input =  None
+            document_input = None
             if st.button("Use?", key="udoc"):
+                use_document = True
                 mnemonize(transcription)
 
 
