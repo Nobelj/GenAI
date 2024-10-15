@@ -11,4 +11,4 @@ assemblyai
 json
 python-doctr
 opencv-python
-numpy
+# numpy
