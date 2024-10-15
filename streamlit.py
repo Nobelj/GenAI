@@ -127,18 +127,16 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
 
     if audio_input:
         with st.spinner("Transcribing"):
-            audio_input = None
             use_audio = True
             transcript = transcriber.transcribe(audio_input)
             transcription = transcript.text
-            title = st.text_area("Transcription", transcription, disabled=True)
-
+            st.text_area("Transcription", transcription, disabled=True)
+            audio_input = None
             if st.button("Use?", key="uaud"):
                 mnemonize(transcription)
 
     if document_input:
         with st.spinner("Transcribing"):
-            document_input =  None
             use_document = True
             model = ocr_predictor(pretrained=True)
             doc = DocumentFile.from_images(document_input.read())
@@ -150,7 +148,8 @@ Give just the text, nothing else. Turn the following into a simple lyric/jingle/
                         for word in line.words:
                             transcription += word.value + " "
                         transcription += "\n" + " "
-            title = st.text_area("Transcription", transcription, disabled=True)
+            st.text_area("Transcription", transcription, disabled=True)
+            document_input =  None
             if st.button("Use?", key="udoc"):
                 mnemonize(transcription)
 
