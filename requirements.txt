@@ -9,4 +9,4 @@ poe_api_wrapper
 asyncio
 assemblyai
 python-doctr
-cv2
+opencv-python
