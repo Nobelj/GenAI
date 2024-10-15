@@ -8,5 +8,6 @@ pandas
 poe_api_wrapper
 asyncio
 assemblyai
-python-doctr
+python-doctr[torch]
 opencv-python
+numpy
