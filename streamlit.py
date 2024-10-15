@@ -66,18 +66,6 @@ def model_res_generator(bot):
         for chunk in stream:
             yield chunk["message"]["content"]
 
-
-# def prompt_formatter(prompt):
-#     prompt_format = """Turn the following into a simple lyric/jingle/acronym/mnemonic that make it easy to remember the text:
-
-# %s
-
-# Give just the text, nothing else""" % (
-#         prompt
-#     )
-#     return prompt_format
-
-
 def main():
     if "system_prompt" not in st.session_state:
         st.session_state["system_prompt"] = (
