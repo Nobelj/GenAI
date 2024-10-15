@@ -11,3 +11,4 @@ assemblyai
 python-doctr[torch]
 opencv-python
 numpy
+SunoAI
