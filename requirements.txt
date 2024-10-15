@@ -10,3 +10,5 @@ asyncio
 assemblyai
 json
 python-doctr
+opencv-python
+numpy
