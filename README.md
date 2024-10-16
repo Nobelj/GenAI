@@ -1,5 +1,5 @@
 # Re:call
-
+![Re:call Logo](/main/logo.png)
 Re:call is an innovative project designed to create personalised musical mnemonics for anything! This README provides an overview of the project, installation instructions, usage guidelines, and contribution details.
 
 ## Installation
