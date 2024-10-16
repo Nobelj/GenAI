@@ -26,7 +26,7 @@ To run the application, use the following command:
 streamlit run streamlit.py
 ```
 
-Note: Ollama models must need to be pulled and loaded loaclly on your machine to work! Since we are using free services, the APIs may reach their limits and no furthere generation may be allowed. If this persists, please wait 24hrs for the API limits to renew.
+Note: Ollama models must need to be pulled and loaded locally on your machine to work! Since we are using free services, the APIs may reach their limits, and no further generation may be allowed. If this persists, please wait 24 hours for the API limits to renew.
 
 ## Contributing
 
