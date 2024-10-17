@@ -14,3 +14,9 @@ numpy
 SunoAI
 librosa
 matplotlib
+fastapi
+uvicorn
+requests
+pydantic
+pydub
+scipy
