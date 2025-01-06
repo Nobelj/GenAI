@@ -12,3 +12,5 @@ python-doctr[torch]
 opencv-python
 numpy
 SunoAI
+pdf2image
+whisper
