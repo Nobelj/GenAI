@@ -13,7 +13,7 @@ opencv-python
 numpy
 SunoAI
 pdf2image
--U openai-whisper
+git+https://github.com/openai/whisper.git
 librosa
 matplotlib
 fastapi
