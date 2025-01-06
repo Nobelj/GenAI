@@ -1,4 +1,5 @@
 ffmpeg
 libsm6
 libxext6
-poppler
+poppler-utils
+python-poppler
