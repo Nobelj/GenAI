@@ -14,3 +14,12 @@ numpy
 SunoAI
 pdf2image
 whisper
+librosa
+matplotlib
+fastapi
+uvicorn
+requests
+pydantic
+pydub
+scipy
+ipython
