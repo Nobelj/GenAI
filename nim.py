@@ -7,7 +7,7 @@ invoke_url = "https://ai.api.nvidia.com/v1/gr/meta/llama-3.2-90b-vision-instruct
 stream = True
 query = "Describe the scene"
 
-kApiKey = "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"
+kApiKey = "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"
 # kApiKey = os.getenv("TEST_NVCF_API_KEY", "")
 assert kApiKey, "Generate API_KEY and export TEST_NVCF_API_KEY=xxxx"
 
@@ -49,7 +49,7 @@ def _upload_asset(media_file, description):
         assert_url,
         headers=headers,
         json={"contentType": f"{mime_type(ext)}", "description": description},
-        timeout=30,
+        timeout=30
     )
     authorize.raise_for_status()
 
@@ -111,10 +111,10 @@ def chat_with_media_nvcf(media_files, query: str, stream: bool = True):
         "NVCF-FUNCTION-ASSET-IDS": asset_seq,
         "Accept": "application/json",
     }
+
     if stream:
         headers["Accept"] = "text/event-stream"
     response = None
-
     messages = [
         {
             "role": "user",
@@ -133,9 +133,10 @@ def chat_with_media_nvcf(media_files, query: str, stream: bool = True):
         "temperature": 1,
         "top_p": 1,
     }
-
-    response = requests.post(invoke_url, headers=headers, json=payload, stream=stream)
-
+    response = requests.post(
+        invoke_url, headers=headers, json=payload, stream=stream
+    )
+    print(response, "response")
     print(f"deleting assets: {asset_list}")
     for asset_id in asset_list:
         _delete_asset(asset_id)
