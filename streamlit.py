@@ -61,6 +61,14 @@ def image_to_byte_array(image: Image) -> bytes:
 def generate_music(mnemonizer_response):
     # return "null"
     # print("Generating Audio...")
+    if (
+        not st.session_state.get("track") 
+        or not isinstance(st.session_state["track"], dict)
+        or "preview" not in st.session_state["track"]
+    ):
+        st.warning("Please select a track first to generate a musical jingle")
+        return None
+        
     with NamedTemporaryFile(suffix=".mp3", delete=False) as temp:
         temp.write(requests.get(st.session_state["track"]["preview"]).content)
         temp.seek(0)
@@ -378,17 +386,22 @@ def mnemonize(text_area):
         for chunk in model_generator(bot=st.session_state["model"]):
             message += chunk
         st.write(message.replace("[End]", ""))
-        with st.spinner():
-            audio_bytes = generate_music(message)
-        if audio_bytes:
-            with NamedTemporaryFile(suffix=".mp3", delete=False) as temp_audio:
-                temp_audio.write(audio_bytes)
-                temp_audio.seek(0)
-                audio_url = temp_audio.name
-                st.markdown("*Generated Jingle* :musical_note:")
-                st.audio(audio_url, format="audio/mpeg", loop=False)
-        else:
-            st.write("Failed to generate music.")
+        
+        if "[Jingle]" in message:  # Only try to generate music if there's a jingle
+            if not st.session_state.get("track") or "preview" not in st.session_state["track"]:
+                st.warning("Please select a track from the sidebar to generate a musical jingle")
+            else:
+                with st.spinner():
+                    audio_bytes = generate_music(message)
+                if audio_bytes:
+                    with NamedTemporaryFile(suffix=".mp3", delete=False) as temp_audio:
+                        temp_audio.write(audio_bytes)
+                        temp_audio.seek(0)
+                        audio_url = temp_audio.name
+                        st.markdown("*Generated Jingle* :musical_note:")
+                        st.audio(audio_url, format="audio/mpeg", loop=False)
+                else:
+                    st.write("Failed to generate music.")
 
         st.session_state["messages"].append({"role": "assistant", "content": message})
 
